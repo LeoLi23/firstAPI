@@ -5,15 +5,38 @@ import (
 	"github.com/astaxie/beego/orm"
 )
 
+
 type Student struct {
-	Id int `orm:"column(Id)"`
-	UserName string `orm:"column(UserName)"`
-	Password string `orm:"column(Password)"`
-	Gender bool `orm:"column(Gender)"`
-	Score int `orm:"column(Score)"`
+	Id int `json:"id" orm:"column(Id);auto"`
+	Username string `json:"Username" orm:"column(Username);size(128)"`
+	Password string `json:"Password" orm:"column(Password);size(128)"`
+	Salt string `json:"Salt" orm:"column(Salt);size(128)"`
 }
 
-var StudentList map[string]*Student
+// LoginRequest defines login request format
+type LoginRequest struct {
+	Username string `json:"Username"`
+	Password string `json:"Password"`
+}
+
+// LoginResponse defines login response
+type LoginResponse struct {
+	Username    string             `json:"Username"`
+	UserID      int                `json:"userID"`
+	Token       string             `json:"token"`
+}
+
+//CreateRequest defines create user request format
+type CreateRequest struct {
+	Username string `json:"Username"`
+	Password string `json:"Password"`
+}
+
+//CreateResponse defines create user response
+type CreateResponse struct {
+	UserID   int    `json:"userID"`
+	Username string `json:"Username"`
+}
 
 func GetAllStudents() []*Student{
 	o := orm.NewOrm()
@@ -61,11 +84,11 @@ func DeleteStudent(id int) {
 	o.Delete(&Student{Id:id})
 }
 
-func StudentLogin(username, password string) bool {
+func DoLogin(username, password string) bool {
 	o := orm.NewOrm()
 	o.Using("default")
-	toread := &Student{UserName:username, Password: password}
-	err := o.Read(toread,"UserName","Password")
+	toread := &Student{Username:username, Password: password}
+	err := o.Read(toread,"Username","Password")
 
 	if err != nil {
 		return false
@@ -73,7 +96,3 @@ func StudentLogin(username, password string) bool {
 	return true
 }
 
-
-func init() {
-	orm.RegisterModel(new(Student))
-}
