@@ -14,9 +14,15 @@ import (
 
 func init() {
 	// StudentController
-	beego.Router("/",&controllers.StudentController{}, "get:GetAll")
-	beego.Router("/id", &controllers.StudentController{},"get:GetById")
-	beego.Router("/register",&controllers.StudentController{}, "post:Post")
-	beego.Router("/update",&controllers.StudentController{},"put:Update")
-	beego.Router("/delete",&controllers.StudentController{},"delete:Delete")
+	namespace := beego.NewNamespace("/school",
+		beego.NSNamespace("/student",
+			beego.NSRouter("/",&controllers.StudentController{}, "get:GetAll"),
+			beego.NSRouter("/id", &controllers.StudentController{},"get:GetById"),
+			beego.NSRouter("/register",&controllers.StudentController{}, "post:Post"),
+			beego.NSRouter("/login",&controllers.StudentController{},"post:Login"),
+			beego.NSRouter("/update",&controllers.StudentController{},"put:Update"),
+			beego.NSRouter("/delete",&controllers.StudentController{},"delete:Delete"),
+			),
+		)
+	beego.AddNamespace(namespace)
 }

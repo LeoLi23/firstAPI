@@ -7,10 +7,13 @@ import (
 
 type Student struct {
 	Id int `orm:"column(Id)"`
-	Name string `orm:"column(Name)"`
+	UserName string `orm:"column(UserName)"`
+	Password string `orm:"column(Password)"`
 	Gender bool `orm:"column(Gender)"`
 	Score int `orm:"column(Score)"`
 }
+
+var StudentList map[string]*Student
 
 func GetAllStudents() []*Student{
 	o := orm.NewOrm()
@@ -45,16 +48,29 @@ func AddStudent(student *Student) Student {
 	return *student 
 }
 
-func UpdateStudent(student *Student) {
+func UpdateStudent(student *Student) (Student, error ){
 	o := orm.NewOrm()
 	_ = o.Using("default")
-	_, _ = o.Update(student)
+	_, err := o.Update(student)
+	return *student, err
 }
 
 func DeleteStudent(id int) {
 	o := orm.NewOrm()
 	o.Using("default")
 	o.Delete(&Student{Id:id})
+}
+
+func StudentLogin(username, password string) bool {
+	o := orm.NewOrm()
+	o.Using("default")
+	toread := &Student{UserName:username, Password: password}
+	err := o.Read(toread,"UserName","Password")
+
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 

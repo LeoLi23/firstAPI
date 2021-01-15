@@ -5,6 +5,7 @@ import (
 	"github.com/astaxie/beego"
 	"encoding/json"
 	"firstAPI/models"
+	"strconv"
 )
 
 // Operations about students
@@ -52,10 +53,17 @@ func (u *StudentController) Post() {
 // @Failure 403 body is empty
 // @router / [put]
 func (u *StudentController) Update() {
-	var s models.Student
-	json.Unmarshal(u.Ctx.Input.RequestBody, &s)
-	models.UpdateStudent(&s)
-	u.Data["json"] = s
+	id,_ := u.GetInt(":id")
+	if id != 0 {
+		var s models.Student
+		json.Unmarshal(u.Ctx.Input.RequestBody, &s)
+		ss, err := models.UpdateStudent(&s)
+		if err != nil {
+			u.Data["json"] = err.Error()
+		} else {
+			u.Data["json"] = ss
+		}
+	}
 	u.ServeJSON()
 }
 
@@ -67,6 +75,17 @@ func (u *StudentController) Update() {
 func (u *StudentController) Delete() {
 	id ,_:= u.GetInt(":id")
 	models.DeleteStudent(id)
-	u.Data["json"] = true
+	u.Data["json"] = map[string]string{"status": "delete success", "data": strconv.Itoa(id)}
+	u.ServeJSON()
+}
+
+func (u *StudentController) Login() {
+	username := u.GetString("username")
+	password := u.GetString("password")
+	if models.StudentLogin(username, password) {
+		u.Data["json"] = "login success"
+	} else {
+		u.Data["json"] = "user not exist"
+	}
 	u.ServeJSON()
 }
