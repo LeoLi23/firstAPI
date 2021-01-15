@@ -9,7 +9,7 @@ import (
 )
 
 
-type Student struct {
+type User struct {
 	Id int `json:"id" orm:"column(Id);auto"`
 	Username string `json:"Username" orm:"column(Username);size(128)"`
 	Password string `json:"Password" orm:"column(Password);size(128)"`
@@ -41,18 +41,18 @@ type CreateResponse struct {
 	Username string `json:"Username"`
 }
 
-func GetAllStudents() []*Student{
+func GetAllStudents() []*User{
 	o := orm.NewOrm()
 	_ = o.Using("default")
-	var students []*Student 
-	query := o.QueryTable("student")
+	var students []*User
+	query := o.QueryTable("User")
 	_, _ = query.All(&students)
 	
 	return students
 }
 
-func GetStudentById(id int) (Student,error) {
-	u := Student{Id:id}
+func GetStudentById(id int) (User,error) {
+	u := User{Id:id}
 	o := orm.NewOrm()
 	_ = o.Using("default")
 	err := o.Read(&u)
@@ -66,7 +66,7 @@ func GetStudentById(id int) (Student,error) {
 	return u,err
 }
 
-//func AddStudent(student *Student) Student {
+//func AddStudent(student *User) User {
 //	o := orm.NewOrm()
 //	_ = o.Using("default")
 //	_, _ = o.Insert(student)
@@ -74,7 +74,7 @@ func GetStudentById(id int) (Student,error) {
 //	return *student
 //}
 
-func UpdateStudent(student *Student) (Student, error ){
+func UpdateStudent(student *User) (User, error ){
 	o := orm.NewOrm()
 	_ = o.Using("default")
 	_, err := o.Update(student)
@@ -84,13 +84,13 @@ func UpdateStudent(student *Student) (Student, error ){
 func DeleteStudent(id int) {
 	o := orm.NewOrm()
 	o.Using("default")
-	o.Delete(&Student{Id:id})
+	o.Delete(&User{Id:id})
 }
 
 //func DoLogin_old_version(username, password string) bool {
 //	o := orm.NewOrm()
 //	o.Using("default")
-//	toread := &Student{Username:username, Password: password}
+//	toread := &User{Username:username, Password: password}
 //	err := o.Read(toread,"Username","Password")
 //
 //	if err != nil {
@@ -112,7 +112,7 @@ func DoLogin(lr *LoginRequest) (*LoginResponse, int, error){
 	o := orm.NewOrm()
 
 	// check if the username exists
-	user := &Student{Username: username}
+	user := &User{Username: username}
 	err := o.Read(user,"Username")
 	if err != nil {
 		return nil, http.StatusBadRequest, errors.New("error: username doesn't exist")
@@ -144,7 +144,7 @@ func DoCreateUser(cr *CreateRequest)(*CreateResponse,int,error){
 	o := orm.NewOrm()
 
 	// check if username exists
-	userNameCheck := Student{Username: cr.Username}
+	userNameCheck := User{Username: cr.Username}
 	err := o.Read(&userNameCheck,"Username")
 	if err == nil {
 		return nil, http.StatusBadRequest, errors.New("username has already existed")
@@ -165,7 +165,7 @@ func DoCreateUser(cr *CreateRequest)(*CreateResponse,int,error){
 	}
 
 	// create user
-	user := Student{}
+	user := User{}
 	user.Username = cr.Username
 	user.Password = hash
 	user.Salt = saltKey
