@@ -1,10 +1,3 @@
-// @APIVersion 1.0.0
-// @Title beego Test API
-// @Description beego has a very cool tools to autogenerate documents for your API
-// @Contact astaxie@gmail.com
-// @TermsOfServiceUrl http://beego.me/
-// @License Apache 2.0
-// @LicenseUrl http://www.apache.org/licenses/LICENSE-2.0.html
 package routers
 
 import (
@@ -14,14 +7,14 @@ import (
 
 func init() {
 	// StudentController
-	namespace := beego.NewNamespace("/school",
-		beego.NSNamespace("/student",
-			beego.NSRouter("/",&controllers.StudentController{}, "get:GetAll"),
-			beego.NSRouter("/id", &controllers.StudentController{},"get:GetById"),
-			beego.NSRouter("/register",&controllers.StudentController{}, "post:Post"),
-			beego.NSRouter("/login",&controllers.StudentController{},"post:Login"),
-			beego.NSRouter("/update",&controllers.StudentController{},"put:Update"),
-			beego.NSRouter("/delete",&controllers.StudentController{},"delete:Delete"),
+	namespace := beego.NewNamespace("/api",
+		beego.NSNamespace("/user",
+			beego.NSRouter("/",&controllers.UserController{}, "get:GetAll"),
+			beego.NSRouter("/id", &controllers.UserController{},"get:GetById"),
+			beego.NSRouter("/register",&controllers.UserController{}, "post:CreateUser"),
+			beego.NSRouter("/login",&controllers.UserController{},"post:Login"),
+			beego.NSRouter("/update",&controllers.UserController{},"put:Update"),
+			beego.NSRouter("/delete",&controllers.UserController{},"delete:Delete"),
 			),
 		)
 	beego.AddNamespace(namespace)
