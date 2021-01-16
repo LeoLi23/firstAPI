@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -16,9 +17,11 @@ type UserController struct {
 }
 
 func (u *UserController) unmarshalPayload(v interface{}) error {
+	log.Println("unmarshalPayload starts")
 	if err := json.Unmarshal(u.Ctx.Input.RequestBody, v); err != nil {
 		logs.Error("unmarshal payload of %s error: %s", u.Ctx.Request.URL.Path, err)
 	}
+	log.Println("unmarshalPayload ends")
 	return nil
 }
 
@@ -63,6 +66,7 @@ func (u *UserController) GetAll() {
 //}
 
 func (u *UserController) GetByName(){
+	log.Println("GetByName starts")
 	gr := new(models.GetRequest)
 	if err := u.unmarshalPayload(gr);err != nil {
 		u.respond(http.StatusBadRequest,err.Error())
@@ -74,7 +78,11 @@ func (u *UserController) GetByName(){
 		u.respond(statuscode,err.Error())
 		return
 	}
-	token := u.Ctx.ResponseWriter.Header()["Authorization"][0]
+
+	token := u.Ctx.Request.Header["Authorization"][0]
+	fmt.Println(token)
+	_, err = models.ValidateToken(token)
+
 	t, timeDiff := models.CheckStatus(token)
 	if t == "" {
 		u.respond(http.StatusBadRequest,
@@ -98,6 +106,8 @@ func (u *UserController) GetByName(){
 		Username: user.Username,
 		Token: token,
 	})
+
+	log.Println("GetbyName ends")
 }
 
 func (u *UserController) Update() {
@@ -139,6 +149,7 @@ func (u *UserController) Login(){
 	u.Ctx.Output.Header("Authorization",lrs.Token)//set token into header
 	u.respond(http.StatusOK,"",lrs)
 
+	log.Println(lrs.Token)
 }
 
 func (u *UserController) CreateUser() {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
+	"log"
 	"net/http"
 )
 
@@ -61,6 +62,7 @@ func GetAllStudents() []*User{
 }
 
 func GetStudentByName(gr *GetRequest) (*User, int, error){
+	log.Println("GetStudentByName starts")
 	name := gr.Username
 	o := orm.NewOrm()
 	user := &User{Username:name}
@@ -69,7 +71,7 @@ func GetStudentByName(gr *GetRequest) (*User, int, error){
 	if err != nil {
 		return nil, http.StatusBadRequest, errors.New("error: username doesn't exist")
 	}
-
+	log.Println("GetStudentByName ends")
 	return user, http.StatusOK, nil
 }
 //func GetStudentById(id int) (User,error) {

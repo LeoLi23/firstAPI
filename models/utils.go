@@ -8,13 +8,14 @@ import(
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/scrypt"
 	"io"
+	"log"
 	"time"
 )
 
 // JWT : HEADER PAYLOAD SIGNATURE
 const (
 	SecretKEY              string = "JWT-Secret-Key"
-	DEFAULT_EXPIRE_SECONDS int    = 60 // default expired 1 minute
+	DEFAULT_EXPIRE_SECONDS int    = 180 // default expired 1 minute
 	PasswordHashBytes             = 16
 )
 
@@ -73,7 +74,9 @@ func ValidateToken(tokenString string) (*JwtPayload, error) {
 
 	claims, ok := token.Claims.(*MyCustomClaims)
 	if ok && token.Valid {
+		log.Println("ok && token valid")
 		logs.Info("%v %v", claims.UserID, claims.StandardClaims.ExpiresAt)
+		logs.Info("Token was issued at ", time.Now().Unix())
 		logs.Info("Token will be expired at ", time.Unix(claims.StandardClaims.ExpiresAt, 0))
 
 		return &JwtPayload{
