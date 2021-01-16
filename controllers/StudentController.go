@@ -69,14 +69,35 @@ func (u *UserController) GetById(){
 		return
 	}
 
-	grs, statuscode,err := models.GetStudentById(gr)
+	user, statuscode, err := models.GetStudentById(gr)
 	if err != nil {
 		u.respond(statuscode,err.Error())
 		return
 	}
+	token := u.Ctx.ResponseWriter.Header()["Authorization"][0]
+	t, timeDiff := models.CheckStatus(token)
+	if t == "" {
+		u.respond(http.StatusBadRequest,
+			"error: token has expired Please log in again",
+			&models.GetResponse{
+				UserID: user.Id,
+				Username: user.Username,
+				Token: token,
+		})
+	}
 
-	u.Ctx.Output.Header("Authorization",grs.Token)
-	u.respond(http.StatusOK,"",grs)
+	// new token
+	if timeDiff <= 30 {
+		token = t
+	}
+
+	u.Ctx.Output.Header("Authorization",token)
+	u.respond(http.StatusOK,"token is valid",
+		&models.GetResponse{
+		UserID: user.Id,
+		Username: user.Username,
+		Token: token,
+	})
 }
 
 func (u *UserController) Update() {

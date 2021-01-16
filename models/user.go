@@ -2,7 +2,7 @@ package models
 
 import (
 	"errors"
-	"firstAPI/controllers"
+	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"net/http"
@@ -61,35 +61,18 @@ func GetAllStudents() []*User{
 	return students
 }
 
-func GetStudentById(gr *GetRequest) (*GetResponse, int, error){
+func GetStudentById(gr *GetRequest) (*User, int, error){
 	id := gr.UserID
+	fmt.Print(id)
 	o := orm.NewOrm()
 	user := &User{Id:id}
 	err := o.Read(user, "Id")
+
 	if err != nil {
 		return nil, http.StatusBadRequest, errors.New("error: userID doesn't exist")
 	}
-	u := new(controllers.UserController)
-	token := u.Ctx.ResponseWriter.Header()["Authorization"][0]
-	t, timeDiff := CheckStatus(token)
-	if t == "" {
-		return &GetResponse{
-			UserID: id,
-			Username: user.Username,
-			Token: token,
-		},http.StatusBadRequest,errors.New("error: token has expired Please log in again")
-	}
 
-	// new token
-	if timeDiff <= 30 {
-		token = t
-	}
-
-	return &GetResponse{
-		UserID: id,
-		Username: user.Username,
-		Token: token,
-	},http.StatusOK,nil
+	return user, http.StatusOK, nil
 }
 //func GetStudentById(id int) (User,error) {
 //	u := User{Id:id}
