@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"fmt"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"net/http"
@@ -42,7 +41,7 @@ type CreateResponse struct {
 }
 
 type GetRequest struct {
-	UserID int `json:"UserID"`
+	Username string `json:"Username"`
 }
 
 type GetResponse struct {
@@ -61,15 +60,14 @@ func GetAllStudents() []*User{
 	return students
 }
 
-func GetStudentById(gr *GetRequest) (*User, int, error){
-	id := gr.UserID
-	fmt.Print(id)
+func GetStudentByName(gr *GetRequest) (*User, int, error){
+	name := gr.Username
 	o := orm.NewOrm()
-	user := &User{Id:id}
-	err := o.Read(user, "Id")
+	user := &User{Username:name}
+	err := o.Read(user, "Username")
 
 	if err != nil {
-		return nil, http.StatusBadRequest, errors.New("error: userID doesn't exist")
+		return nil, http.StatusBadRequest, errors.New("error: username doesn't exist")
 	}
 
 	return user, http.StatusOK, nil

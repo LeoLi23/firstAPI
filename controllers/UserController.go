@@ -62,14 +62,14 @@ func (u *UserController) GetAll() {
 //	u.ServeJSON()
 //}
 
-func (u *UserController) GetById(){
+func (u *UserController) GetByName(){
 	gr := new(models.GetRequest)
 	if err := u.unmarshalPayload(gr);err != nil {
 		u.respond(http.StatusBadRequest,err.Error())
 		return
 	}
 
-	user, statuscode, err := models.GetStudentById(gr)
+	user, statuscode, err := models.GetStudentByName(gr)
 	if err != nil {
 		u.respond(statuscode,err.Error())
 		return
