@@ -2,7 +2,7 @@ package models
 
 import (
 	"errors"
-	"fmt"
+	"firstAPI/controllers"
 	"github.com/astaxie/beego/logs"
 	"github.com/astaxie/beego/orm"
 	"net/http"
@@ -41,6 +41,16 @@ type CreateResponse struct {
 	Username string `json:"Username"`
 }
 
+type GetRequest struct {
+	UserID int `json:"UserID"`
+}
+
+type GetResponse struct {
+	UserID int `json:"UserID"`
+	Username string `json:"Username"`
+	Token string `json:"token"`
+}
+
 func GetAllStudents() []*User{
 	o := orm.NewOrm()
 	_ = o.Using("default")
@@ -51,27 +61,49 @@ func GetAllStudents() []*User{
 	return students
 }
 
-func GetStudentById(id int) (User,error) {
-	u := User{Id:id}
+func GetStudentById(gr *GetRequest) (*GetResponse, int, error){
+	id := gr.UserID
 	o := orm.NewOrm()
-	_ = o.Using("default")
-	err := o.Read(&u)
-	
-	if err == orm.ErrNoRows {
-		fmt.Println("Can't find it!")
-	} else if err == orm.ErrMissPK {
-		fmt.Println("No Primary key!")
+	user := &User{Id:id}
+	err := o.Read(user, "Id")
+	if err != nil {
+		return nil, http.StatusBadRequest, errors.New("error: userID doesn't exist")
 	}
-	
-	return u,err
-}
+	u := new(controllers.UserController)
+	token := u.Ctx.ResponseWriter.Header()["Authorization"][0]
+	t, timeDiff := CheckStatus(token)
+	if t == "" {
+		return &GetResponse{
+			UserID: id,
+			Username: user.Username,
+			Token: token,
+		},http.StatusBadRequest,errors.New("error: token has expired Please log in again")
+	}
 
-//func AddStudent(student *User) User {
+	// new token
+	if timeDiff <= 30 {
+		token = t
+	}
+
+	return &GetResponse{
+		UserID: id,
+		Username: user.Username,
+		Token: token,
+	},http.StatusOK,nil
+}
+//func GetStudentById(id int) (User,error) {
+//	u := User{Id:id}
 //	o := orm.NewOrm()
 //	_ = o.Using("default")
-//	_, _ = o.Insert(student)
+//	err := o.Read(&u)
 //
-//	return *student
+//	if err == orm.ErrNoRows {
+//		fmt.Println("Can't find it!")
+//	} else if err == orm.ErrMissPK {
+//		fmt.Println("No Primary key!")
+//	}
+//
+//	return u,err
 //}
 
 func UpdateStudent(student *User) (User, error ){
@@ -86,18 +118,6 @@ func DeleteStudent(id int) {
 	o.Using("default")
 	o.Delete(&User{Id:id})
 }
-
-//func DoLogin_old_version(username, password string) bool {
-//	o := orm.NewOrm()
-//	o.Using("default")
-//	toread := &User{Username:username, Password: password}
-//	err := o.Read(toread,"Username","Password")
-//
-//	if err != nil {
-//		return false
-//	}
-//	return true
-//}
 
 func DoLogin(lr *LoginRequest) (*LoginResponse, int, error){
 	// get username and password

@@ -14,7 +14,7 @@ import(
 // JWT : HEADER PAYLOAD SIGNATURE
 const (
 	SecretKEY              string = "JWT-Secret-Key"
-	DEFAULT_EXPIRE_SECONDS int    = 600 // default expired 10 minutes
+	DEFAULT_EXPIRE_SECONDS int    = 60 // default expired 1 minute
 	PasswordHashBytes             = 16
 )
 
@@ -108,7 +108,7 @@ func RefreshToken(tokenString string) (newTokenString string, err error) {
 		jwt.StandardClaims{
 			Issuer:    claims.StandardClaims.Issuer, //name of token issue
 			IssuedAt:  time.Now().Unix(),            //time of token issue
-			ExpiresAt: expireAt,
+			ExpiresAt: expireAt,// new expired
 		},
 	}
 
@@ -141,4 +141,28 @@ func GeneratePassHash(password string, salt string) (hash string, err error) {
 	}
 
 	return fmt.Sprintf("%x", h), nil
+}
+
+func CheckStatus(tokenString string) (string,int64) {
+	jp, err := ValidateToken(tokenString)
+
+	if err != nil {
+		// if token has already expired
+		fmt.Println("Your token has expired, Please log in again! ")
+		return "", -1
+	}
+
+	timeDiff := jp.ExpiresAt - time.Now().Unix()
+	fmt.Println("timeDiff = ", timeDiff)
+	if timeDiff <= 30 {
+		// if token is close to expiration, refresh the token
+		fmt.Println("Your token would soon be expired")
+		newToken, err := RefreshToken(tokenString)
+		if err == nil {
+			return newToken, timeDiff
+		}
+	}
+	// if token is valid, do nothing
+	fmt.Println("Your token is good ")
+	return tokenString,timeDiff
 }

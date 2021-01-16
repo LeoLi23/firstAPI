@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"fmt"
-	"github.com/astaxie/beego"
 	"encoding/json"
 	"firstAPI/models"
+	"fmt"
+	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/logs"
-	"strconv"
 	"net/http"
+	"strconv"
 )
 
 // Operations about students
@@ -48,29 +48,36 @@ func (u *UserController) GetAll() {
 }
 
 
-func (u *UserController) GetById() {
-	id, _ := u.GetInt(":id")
-	if id != 0 {
-		fmt.Println(id)
-		s,err := models.GetStudentById(id)
-		if err != nil {
-			u.Data["json"] = err.Error()
-		} else {
-			u.Data["json"] = s
-		}
-	}
-	u.ServeJSON()
-}
-
-//func (u *UserController) Post() {
-//	var s models.Student
-//	json.Unmarshal(u.Ctx.Input.RequestBody, &s)
-//	uid := models.AddStudent(&s)
-//	u.Data["json"] = uid
-//	fmt.Println(uid)
+//func (u *UserController) GetById() {
+//	id, _ := u.GetInt(":id")
+//	if id != 0 {
+//		fmt.Println(id)
+//		s,err := models.GetStudentById(id)
+//		if err != nil {
+//			u.Data["json"] = err.Error()
+//		} else {
+//			u.Data["json"] = s
+//		}
+//	}
 //	u.ServeJSON()
 //}
 
+func (u *UserController) GetById(){
+	gr := new(models.GetRequest)
+	if err := u.unmarshalPayload(gr);err != nil {
+		u.respond(http.StatusBadRequest,err.Error())
+		return
+	}
+
+	grs, statuscode,err := models.GetStudentById(gr)
+	if err != nil {
+		u.respond(statuscode,err.Error())
+		return
+	}
+
+	u.Ctx.Output.Header("Authorization",grs.Token)
+	u.respond(http.StatusOK,"",grs)
+}
 
 func (u *UserController) Update() {
 	id,_ := u.GetInt(":id")
@@ -93,17 +100,6 @@ func (u *UserController) Delete() {
 	u.Data["json"] = map[string]string{"status": "delete success", "data": strconv.Itoa(id)}
 	u.ServeJSON()
 }
-
-//func (u *UserController) Login_old_version() {
-//	username := u.GetString("username")
-//	password := u.GetString("password")
-//	if models.DoLogin(username, password) {
-//		u.Data["json"] = "login success"
-//	} else {
-//		u.Data["json"] = "user not exist"
-//	}
-//	u.ServeJSON()
-//}
 
 func (u *UserController) Login(){
 	lr := new(models.LoginRequest)
@@ -139,3 +135,4 @@ func (u *UserController) CreateUser() {
 
 	u.respond(http.StatusOK, "", createUser)
 }
+

@@ -9,7 +9,7 @@ func init() {
 	// StudentController
 	namespace := beego.NewNamespace("/api",
 		beego.NSNamespace("/user",
-			beego.NSRouter("/",&controllers.UserController{}, "get:GetAll"),
+			beego.NSRouter("/display",&controllers.UserController{}, "get:GetAll"),
 			beego.NSRouter("/id", &controllers.UserController{},"get:GetById"),
 			beego.NSRouter("/register",&controllers.UserController{}, "post:CreateUser"),
 			beego.NSRouter("/login",&controllers.UserController{},"post:Login"),
