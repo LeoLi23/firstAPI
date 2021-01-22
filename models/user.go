@@ -74,20 +74,6 @@ func GetStudentByName(gr *GetRequest) (*User, int, error){
 	log.Println("GetStudentByName ends")
 	return user, http.StatusOK, nil
 }
-//func GetStudentById(id int) (User,error) {
-//	u := User{Id:id}
-//	o := orm.NewOrm()
-//	_ = o.Using("default")
-//	err := o.Read(&u)
-//
-//	if err == orm.ErrNoRows {
-//		fmt.Println("Can't find it!")
-//	} else if err == orm.ErrMissPK {
-//		fmt.Println("No Primary key!")
-//	}
-//
-//	return u,err
-//}
 
 func UpdateStudent(student *User) (User, error ){
 	o := orm.NewOrm()

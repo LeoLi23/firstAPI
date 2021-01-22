@@ -160,6 +160,7 @@ func CheckStatus(tokenString string) (string,int64) {
 	if timeDiff <= 30 {
 		// if token is close to expiration, refresh the token
 		fmt.Println("Your token would soon be expired")
+		fmt.Println("Refreshing your token right now!")
 		newToken, err := RefreshToken(tokenString)
 		if err == nil {
 			return newToken, timeDiff

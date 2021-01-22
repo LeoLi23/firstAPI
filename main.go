@@ -10,7 +10,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func init() {
+func init() {// classified into models/index.go ==> initialize mysql database(remote)
 	orm.Debug = true
 
 	if err1 := orm.RegisterDriver("mysql", orm.DRMySQL); err1 != nil {
@@ -24,7 +24,7 @@ func init() {
 		panic(err2.Error())
 	}
 	fmt.Println("Connected to the database")
-	orm.RunSyncdb("default", false, true)
+	_ = orm.RunSyncdb("default", false, true)
 }
 
 func main() {
@@ -34,15 +34,4 @@ func main() {
 	}
 
 	beego.Run()
-	//lr := &models.LoginRequest{
-	//	Username : "someone",
-	//	Password : "mypassword",
-	//}
-	//token, _ := models.GenerateToken(lr,2, 0)
-	//j, _ := models.ValidateToken(token)
-	//fmt.Println("Token: ", token)
-	//fmt.Println("Issued at: ",j.IssuedAt)
-	//fmt.Println("Expired at: ", j.ExpiresAt)
-	//_,_ = new(controllers.UserController).CheckStatus("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VySUQiOjIsImV4cCI6MTYxMDc5MDc3MiwiaWF0IjoxNjEwNzkwNzEyLCJpc3MiOiJzaGl5aSJ9.uMv4lDhMPzldV4A7wnx1mIf54pGb9yOgTTjYBSXDwkA")
-
 }
